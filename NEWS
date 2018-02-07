@@ -1,0 +1,9 @@
+0.3.4.2: Improvement of tick handling, more automatic determination
+0.3.4: introduced data.table dependency
+0.3.3: speedup writeTimeSeries by optionally using data.table's rbindlist
+0.3.2: optional data.table read csv for speedup
+0.3.1: minor add ons, problems in versions fixed
+0.3: function to create regular time series from data.frames
+0.2.7.9.1: minor change to unit test to avoid re-import warning with other packages that load openxlsx.
+0.2.7.9: added function to turn quarterly to monthly series (interpolate).
+0.2.7.8: added function to start after last internal NA.
