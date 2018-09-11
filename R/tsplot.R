@@ -8,6 +8,7 @@
 #' @param left_as_bar logical should the series that relate to the left bar be drawn as (stacked) bar charts?
 #' @param group_bar_chart logical should a bar chart be grouped instead of stacked?
 #' @param relative_bar_chart logical Should time series be normalized such that bars range from 0 to 1? Defaults to FALSE. That way every sub bar (time series) is related to the global max. Hence do not expect every single bar to reach 1. This works for stacked and grouped charts and does not change anything but the scale of the chart. 
+#' @param left_as_band logical Should the time series assigned to the left axis be displayed as stacked area charts?
 #' @param plot_title character title to be added to the plot
 #' @param plot_subtitle character subtitle to be added to the plot 
 #' @param plot_subtitle_r character second subtitle to be added at the top right
@@ -50,6 +51,7 @@ tsplot <- function(...,
                    left_as_bar = FALSE,                    
                    group_bar_chart = FALSE,
                    relative_bar_chart = FALSE,
+                   left_as_band = FALSE,
                    plot_title = NULL,
                    plot_subtitle = NULL,              
                    plot_subtitle_r = NULL,
@@ -76,6 +78,7 @@ tsplot.ts <- function(...,
                       left_as_bar = FALSE,                
                       group_bar_chart = FALSE,
                       relative_bar_chart = FALSE,
+                      left_as_band = FALSE,
                       plot_title = NULL,
                       plot_subtitle = NULL,
                       plot_subtitle_r = NULL,
@@ -100,6 +103,7 @@ tsplot.ts <- function(...,
          left_as_bar = left_as_bar,
          group_bar_chart = group_bar_chart,
          relative_bar_chart = relative_bar_chart,
+         left_as_band = left_as_band,
          plot_title = plot_title,
          plot_subtitle = plot_subtitle,
          plot_subtitle_r = plot_subtitle_r,
@@ -125,6 +129,7 @@ tsplot.mts <- function(...,
                        left_as_bar = FALSE,
                        group_bar_chart = FALSE,
                        relative_bar_chart = FALSE,
+                       left_as_band = FALSE,
                        plot_title = NULL,
                        plot_subtitle = NULL,
                        plot_subtitle_r = NULL,
@@ -159,6 +164,7 @@ create a ts out of a row of a data.frame? Converting to single ts.")
            left_as_bar = left_as_bar,
            group_bar_chart = group_bar_chart,
            relative_bar_chart = relative_bar_chart,
+           left_as_band = left_as_band,
            plot_title = plot_title,
            plot_subtitle = plot_subtitle,
            plot_subtitle_r = plot_subtitle_r,
@@ -185,6 +191,7 @@ tsplot.zoo <- function(...,
                        left_as_bar = FALSE,
                        group_bar_chart = FALSE,
                        relative_bar_chart = FALSE,
+                       left_as_band = FALSE,
                        plot_title = NULL,
                        plot_subtitle = NULL,
                        plot_subtitle_r = NULL,
@@ -211,6 +218,7 @@ tsplot.xts <- function(...,
                        left_as_bar = FALSE,
                        group_bar_chart = FALSE,
                        relative_bar_chart = FALSE,
+                       left_as_band = FALSE,
                        plot_title = NULL,
                        plot_subtitle = NULL,
                        plot_subtitle_r = NULL,
@@ -237,6 +245,7 @@ tsplot.list <- function(...,
                         left_as_bar = FALSE,
                         group_bar_chart = FALSE,
                         relative_bar_chart = FALSE,
+                        left_as_band = FALSE,
                         plot_title = NULL,
                         plot_subtitle = NULL,
                         plot_subtitle_r = NULL,
@@ -259,6 +268,46 @@ tsplot.list <- function(...,
   
   if(inherits(tsr, "ts")) {
     tsr <- list(tsr)
+  }
+  
+  class_l <- sapply(tsl, "class")
+  non_ts_l <- class_l != "ts"
+  if(any(non_ts_l)) {
+    warning(
+      sprintf("Ignoring non-ts objects in list: %s\nCheck if those belong in the theme!",
+              paste(names(class_l[non_ts_l]), collapse = ", ")
+      )
+    )
+    tsl <- tsl[!non_ts_l]
+  }
+  
+  tsl_lengths <- sapply(tsl, length)
+  if(any(tsl_lengths == 1)) {
+    warning("tsl contains series of length 1! Omitting those.")
+    tsl <- tsl[tsl_lengths > 1]
+    if(length(tsl) == 0) {
+      stop("No series with length greater 1 left, stopping!")
+    }
+  } 
+  
+  if(!is.null(tsr)) {
+    tsr_lengths <- sapply(tsr, length)
+    if(any(tsr_lengths == 1)) {
+      warning("tsr contains series of length 1! omitting those.")
+      tsr <- tsr[tsr_lengths > 1]
+      if(length(tsr) == 0) {
+        tsr <- NULL
+      }
+    }
+  }
+  
+  # Sanity check for band plots
+  if(left_as_band) {
+    all_signs <- sign(unlist(tsl))
+    signs_consistent <- (any(all_signs < 0) & all(all_signs <= 0)) | (any(all_signs > 0) & all(all_signs >= 0))
+    if(!signs_consistent) {
+      warning("Found both positive and negative contributions in tsl!\nAre you sure a band plot is what you want?")
+    }
   }
   
   if(any(sapply(tsl, length) == 1) || (!is.null(tsr) && any(sapply(tsr, length) == 1))) {
@@ -361,13 +410,23 @@ tsplot.list <- function(...,
       n_ci_l <- `if`(any(names_l %in% names(ci)), sum(sapply(ci[names_l], length)), 0)
       n_ci_r <- `if`(any(names_r %in% names(ci)), sum(sapply(ci[names_r], length)), 0)
       
+      n_newline_ci <- lengths(regmatches(theme$ci_legend_label, gregexpr("\n", theme$ci_legend_label)))
+      
       n_newline_l <- max(lengths(regmatches(names_l, gregexpr("\n", names_l))))
       n_newline_r <- `if`(is.null(tsr), 0, max(lengths(regmatches(names_r, gregexpr("\n", names_r)))))
       
+      if(n_ci_l > 0) {
+        n_newline_l <- max(n_newline_ci, n_newline_l)
+      }
+      
+      if(n_ci_r > 0) {
+        n_newline_r <- max(n_newline_ci, n_newline_r)
+      }
+      
       n_legends_l_r <- c(
         # Add length_x*n_legend_x since the height of all legend entries is determined by the tallest one
-        length_l + n_ci_l + (left_as_bar && theme$sum_as_line) + length_l*n_newline_l, 
-        length_r + n_ci_r + length_r*n_newline_r
+        length_l + n_ci_l + (left_as_bar && theme$sum_as_line) + (length_l + n_ci_l)*n_newline_l, 
+        length_r + n_ci_r + (length_r + n_ci_r)*n_newline_r
       )
       
       bigger_legend <- 1
@@ -379,7 +438,7 @@ tsplot.list <- function(...,
       }
       
       n_legend_lines <- ceiling(n_legends/theme$legend_col)
-      n_legend_entries <- `if`(bigger_legend == 1, length_l, length_r)
+      n_legend_entries <- `if`(bigger_legend == 1, length_l + n_ci_l, length_r + n_ci_r)
       
       # strheight only really considers the number of newlines in the text to be measured
       legend_height_in_in <- strheight(
@@ -406,7 +465,7 @@ tsplot.list <- function(...,
   cnames <- names(tsl)
   # if(!is.null(tsr)) cnames <- names(tsr) 
   
-  if(left_as_bar) {
+  if(left_as_bar || left_as_band) {
     # Combine ts
     tsmat <- do.call("cbind", tsl)
     
@@ -414,7 +473,7 @@ tsplot.list <- function(...,
       # Set all NAs to 0 so range() works properly
       tsmat[is.na(tsmat)] <- 0
       ranges <- apply(tsmat, 1, function(r) {
-        if(group_bar_chart) {
+        if(group_bar_chart && !left_as_band) {
           range(r)
         } else {
           range(c(sum(r[r < 0]), sum(r[r >= 0])))
@@ -431,7 +490,7 @@ tsplot.list <- function(...,
     tsl_r[2] <- max(0, tsl_r[2])
   } else {
     # Determine range of tsl plus any potential confidence bands
-    tsl_r <- range(as.numeric(unlist(c(tsl, ci[names(tsl)]))),na.rm = T)
+    tsl_r <- range(as.numeric(unlist(c(tsl, ci[names(tsl)]))), na.rm = TRUE)
   }
   
   if(!is.null(theme$y_range_min_size)) {
@@ -446,7 +505,7 @@ tsplot.list <- function(...,
   
   if(!is.null(tsr)) {
     tsr <- sanitizeTsr(tsr)
-    tsr_r <- range(unlist(c(tsr, ci[names(tsr)])))
+    tsr_r <- range(unlist(c(tsr, ci[names(tsr)])), na.rm = TRUE)
     
     if(!is.null(theme$y_range_min_size)) {
       tsr_r_size <- diff(tsr_r)
@@ -495,7 +554,7 @@ tsplot.list <- function(...,
     right_ticks <- 1
   }
   
-  if(!theme$y_grid_count_strict) {
+  if(!theme$y_grid_count_strict && is.null(manual_value_ticks_l) && is.null(manual_value_ticks_r)) {
     left_diff <- diff(left_ticks)
     left_d <- left_diff[1]
     left_ub <- left_ticks[length(left_ticks)]
@@ -514,6 +573,7 @@ tsplot.list <- function(...,
       left_ticks <- c(left_ticks, left_ub + left_d)
       if(!is.null(tsr)) {
         right_ticks <- c(right_ticks, right_ub + right_d)
+        right_ub <- right_ub + right_d
       }
     }
     
@@ -523,6 +583,7 @@ tsplot.list <- function(...,
       left_ticks <- c(left_lb - left_d, left_ticks)
       if(!is.null(tsr)) {
         right_ticks <- c(right_lb - right_d, right_ticks)
+        right_lb <- right_lb - right_d
       }
     }
     
@@ -545,16 +606,28 @@ tsplot.list <- function(...,
     # Technically we could save ourselves all that correcting if manual ticks are not null.
     # This is just a convenient place to check.
     
-    left_sign_ok = sign(left_ticks[1]) == sign(left_y$y_ticks[1]) && sign(max(left_ticks)) == sign(max(left_y$y_ticks))
+    left_sign_ok = (
+      sign(left_ticks[1]) == sign(left_y$y_ticks[1]) || sign(left_ticks[1]) == 0
+    ) && (
+      sign(max(left_ticks)) == sign(max(left_y$y_ticks)) || sign(max(left_ticks)) == 0
+    )
     
-    right_sign_ok = is.null(tsr) || (sign(right_ticks[1]) == sign(right_y$y_ticks[1]) && sign(max(right_ticks)) == sign(max(right_y$y_ticks)))
+    right_sign_ok = 
+      is.null(tsr) || (
+        (
+          sign(right_ticks[1]) == sign(right_y$y_ticks[1]) || sign(right_ticks[1]) == 0
+        ) && (
+          sign(max(right_ticks)) == sign(max(right_y$y_ticks)) || sign(max(right_ticks)) == 0
+        )
+      )
     
-    if(is.null(manual_value_ticks_l) && (!theme$range_must_not_cross_zero || left_sign_ok)) {
+    # Only touch ticks if both sides are ok
+    if(!theme$range_must_not_cross_zero || (left_sign_ok && right_sign_ok)) {
       left_y <- list(y_range = range(left_ticks), y_ticks = left_ticks)
-    }
-    
-    if(is.null(manual_value_ticks_r) && !is.null(tsr) && (!theme$range_must_not_cross_zero || right_sign_ok)) {
-      right_y <- list(y_range = range(right_ticks), y_ticks = right_ticks)
+      
+      if(!is.null(tsr)) {
+        right_y <- list(y_range = range(right_ticks), y_ticks = right_ticks)
+      }
     }
   }
   
@@ -609,47 +682,13 @@ tsplot.list <- function(...,
     
   }
   
-  # Global X-Axis ###################
-  if(theme$yearly_ticks){
-    if(theme$label_pos == "start" || theme$x_tick_dt != 1 || !is.null(manual_ticks_x)){
-      axis(1,global_x$yearly_tick_pos,labels = global_x$yearly_tick_pos,
-           lwd = theme$lwd_x_axis,
-           lwd.ticks = theme$lwd_yearly_ticks,
-           tcl = theme$tcl_yearly_tick,
-           padj = 0)    
-    } else{
-      axis(1,global_x$yearly_tick_pos,labels = F,
-           lwd = theme$lwd_x_axis,
-           lwd.ticks = theme$lwd_yearly_ticks,
-           tcl = theme$tcl_yearly_tick)
-    }
-  }
-  
-  if(theme$quarterly_ticks && theme$x_tick_dt == 1 && is.null(manual_ticks_x)){
-    overlap <- global_x$quarterly_tick_pos %in% global_x$yearly_tick_pos
-    q_ticks <- global_x$quarterly_tick_pos[!overlap]
-    q_labels <- global_x$year_labels_middle_q[!overlap]
-    if(theme$label_pos == "mid"){
-      axis(1, q_ticks,labels = q_labels,
-           lwd = theme$lwd_x_axis,
-           lwd.ticks = theme$lwd_quarterly_ticks,
-           tcl = theme$tcl_quarterly_ticks,
-           padj = 0)    
-    } else{
-      axis(1, q_ticks, labels = F,
-           lwd = theme$lwd_x_axis,
-           lwd.ticks = theme$lwd_quarterly_ticks,
-           tcl = theme$tcl_quarterly_ticks)
-    }
-  }
-  
   if(theme$show_y_grids){
     addYGrids(left_y$y_ticks, global_x$x_range, theme = theme)
   }
   # Split theme into left/right
   tt_r <- theme
   # Make sure we do not reuse line specs for the right axis (if left is not bars)
-  if(!left_as_bar) {
+  if(!(left_as_bar || left_as_band) ) {
     total_le <- length(tsl) + length(tsr)
     start_r <- (total_le - (length(tsr)-1)):total_le
     
@@ -660,14 +699,6 @@ tsplot.list <- function(...,
     tt_r$point_symbol <- tt_r$point_symbol[start_r]
     tt_r$NA_continue_line <- tt_r$NA_continue_line[start_r]
     tt_r$ci_colors <- tt_r$ci_colors[start_r]
-  }
-
-  
-  # LEFT Y-AXIS
-  if(theme$show_left_y_axis){
-    axis(2,left_y$y_ticks,las = theme$y_las,
-         lwd = theme$lwd_y_axis,
-         lwd.ticks = theme$lwd_y_ticks, tcl = theme$tcl_y_ticks)
   }
   
   # Draw all confidence bands here (so they don't overlap lines later)
@@ -728,7 +759,7 @@ tsplot.list <- function(...,
     
   } else {
     # draw lineplot
-    draw_ts_lines(tsl,theme=theme)
+    draw_ts_lines(tsl, theme=theme, bandplot = left_as_band)
   }
   
   # RIGHT PLOT #######################
@@ -754,6 +785,93 @@ tsplot.list <- function(...,
     }
   }
   
+  # DRAW AXES
+  par(new = TRUE)
+  plot(NULL,
+       xlim = global_x$x_range,
+       ylim = left_y$y_range,
+       axes = F,
+       xlab = "",
+       ylab = "",
+       xaxs = theme$xaxs,
+       yaxs = theme$yaxs
+  )
+  
+  # Global X-Axis ###################
+  if(theme$show_x_axis) {
+    if(theme$yearly_ticks){
+      if(theme$label_pos == "start" || theme$x_tick_dt != 1 || !is.null(manual_ticks_x)){
+        axis(1,global_x$yearly_tick_pos,labels = global_x$yearly_tick_pos,
+             lwd = theme$lwd_x_axis,
+             lwd.ticks = theme$lwd_yearly_ticks,
+             tcl = theme$tcl_yearly_tick,
+             padj = 0)    
+      } else{
+        axis(1,global_x$yearly_tick_pos,labels = F,
+             lwd = theme$lwd_x_axis,
+             lwd.ticks = theme$lwd_yearly_ticks,
+             tcl = theme$tcl_yearly_tick)
+      }
+    }
+    
+    if(theme$quarterly_ticks && theme$x_tick_dt == 1 && is.null(manual_ticks_x)){
+      overlap <- global_x$quarterly_tick_pos %in% global_x$yearly_tick_pos
+      q_ticks <- global_x$quarterly_tick_pos[!overlap]
+      q_labels <- global_x$year_labels_middle_q[!overlap]
+      if(theme$label_pos == "mid"){
+        axis(1, q_ticks,labels = q_labels,
+             lwd = theme$lwd_x_axis,
+             lwd.ticks = theme$lwd_quarterly_ticks,
+             tcl = theme$tcl_quarterly_ticks,
+             padj = 0)    
+      } else{
+        axis(1, q_ticks, labels = F,
+             lwd = theme$lwd_x_axis,
+             lwd.ticks = theme$lwd_quarterly_ticks,
+             tcl = theme$tcl_quarterly_ticks)
+      }
+    }
+  }
+  
+  # LEFT Y-AXIS
+  if(theme$show_left_y_axis){
+    axis(2,left_y$y_ticks,las = theme$y_las,
+         lwd = theme$lwd_y_axis,
+         lwd.ticks = theme$lwd_y_ticks, tcl = theme$tcl_y_ticks)
+  }
+  
+  if(!is.null(tsr)){
+    par(new = T)
+    plot(NULL,
+         xlim = global_x$x_range,
+         ylim = right_y$y_range,
+         axes = F,
+         xlab = "",
+         ylab = "",
+         yaxs = theme$yaxs,
+         xaxs = theme$xaxs
+    )
+    
+    # RIGHT Y-Axis
+    if(theme$show_right_y_axis){
+      axis(4,right_y$y_ticks,las = theme$y_las,
+           lwd = theme$lwd_y_axis,
+           lwd.ticks = theme$lwd_y_ticks, tcl = theme$tcl_y_ticks)
+    }
+  }
+  
+  # RESET USER COORDINATES TO LEFT SIDE
+  par(new = TRUE)
+  plot(NULL,
+       xlim = global_x$x_range,
+       ylim = left_y$y_range,
+       axes = F,
+       xlab = "",
+       ylab = "",
+       xaxs = theme$xaxs,
+       yaxs = theme$yaxs
+  )
+  
   if(theme$use_box) {
     box(lwd = theme$lwd_box)
   }
@@ -761,12 +879,24 @@ tsplot.list <- function(...,
   # add legend
   if(auto_legend){
     ci_names <- lapply(names(ci), function(x) {
-      paste0(names(ci[[x]]), "% ci for ", x)
+      y <- gsub("%series%", x, theme$ci_legend_label)
+      if(grepl("%ci_value%", y)) {
+        parts <- strsplit(y, "%ci_value%")[[1]]
+        # in case %ci_value% is at the very end (see ?split)
+        if(length(parts) == 1) {
+          parts <- c(parts, "")
+        }
+        y <- paste0(parts[1], names(ci[[x]]), parts[2])
+      } else {
+        y <- rep(y, length(ci[[x]]))
+      }
+      y
     })
     names(ci_names) <- names(ci)
     
     add_legend(names(tsl), names(tsr), ci_names,
-               theme = theme, left_as_bar = left_as_bar)
+               theme = theme, left_as_bar = left_as_bar,
+               left_as_band = left_as_band)
   }
   
   # add title and subtitle

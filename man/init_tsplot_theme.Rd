@@ -5,40 +5,44 @@
 \alias{init_tsplot_print_theme}
 \title{Initiate Default Theme}
 \usage{
-init_tsplot_theme(auto_bottom_margin = FALSE, bar_border = "#000000",
-  bar_border_lwd = 1, bar_fill_color = c(ETH8 = "#007A92", ETH8_60 =
-  "#66b0c2", ETH8_30 = "#b3d7e0", ETH8_20 = "#cce5eb", ETH5 = "#91056a", ETH5_60
-  = "#cc67a7", ETH5_30 = "#e6b3d3"), ci_alpha = "44",
-  ci_colors = line_colors, default_bottom_margin = 15,
-  fill_up_start = FALSE, fill_year_with_nas = TRUE,
-  highlight_color = "#e9e9e9", highlight_window = FALSE,
-  highlight_window_end = NA, highlight_window_freq = 4,
-  highlight_window_start = NA, label_pos = "mid", legend_all_left = FALSE,
-  legend_box_size = 2, legend_col = 1, legend_font_size = 1,
-  legend_intersp_x = 1, legend_intersp_y = 1, legend_margin_bottom = 5,
-  legend_margin_top = 12, legend_seg.len = 2, line_colors = c(ETH_8_100 =
-  "#a9af66", ETH_4_100 = "#72791c", ETH_8_20 = "#cce5eb", ETH_5_60 = "#cc67a7",
-  ETH_8_60 = "#66b0c2", ETH_5_100 = "#91056a", ETH_4_60 = "#007a92"),
-  line_to_middle = TRUE, lty = 1, lwd = c(2, 3, 1, 4, 2, 4),
-  lwd_box = 1.5, lwd_quarterly_ticks = 1, lwd_x_axis = 1.5,
-  lwd_y_axis = 1.5, lwd_y_ticks = 1.5, lwd_yearly_ticks = 1.5,
-  margins = c(NA, 7, 12, 7), NA_continue_line = FALSE,
-  output_wide = FALSE, point_symbol = 1:18, pointsize = 12,
-  preferred_y_gap_sizes = c(25, 20, 15, 10, 5, 2.5, 1, 0.5),
+init_tsplot_theme(auto_bottom_margin = FALSE, band_fill_color = c(ETH8 =
+  "#007A92", ETH8_60 = "#66b0c2", ETH8_30 = "#b3d7e0", ETH8_20 = "#cce5eb", ETH5
+  = "#91056a", ETH5_60 = "#cc67a7", ETH5_30 = "#e6b3d3"),
+  bar_border = "#000000", bar_border_lwd = 1, bar_fill_color = c(ETH8 =
+  "#007A92", ETH8_60 = "#66b0c2", ETH8_30 = "#b3d7e0", ETH8_20 = "#cce5eb", ETH5
+  = "#91056a", ETH5_60 = "#cc67a7", ETH5_30 = "#e6b3d3"), bar_gap = 15,
+  bar_group_gap = 30, ci_alpha = "44", ci_colors = line_colors,
+  ci_legend_label = "\%ci_value\%\% ci for \%series\%",
+  default_bottom_margin = 15, fill_up_start = FALSE,
+  fill_year_with_nas = TRUE, highlight_color = "#e9e9e9",
+  highlight_window = FALSE, highlight_window_end = NA,
+  highlight_window_freq = 4, highlight_window_start = NA,
+  label_pos = "mid", legend_all_left = FALSE, legend_box_size = 2,
+  legend_col = 1, legend_font_size = 1, legend_intersp_x = 1,
+  legend_intersp_y = 1, legend_margin_bottom = 5, legend_margin_top = 12,
+  legend_seg.len = 2, line_colors = c(ETH_8_100 = "#a9af66", ETH_4_100 =
+  "#72791c", ETH_8_20 = "#cce5eb", ETH_5_60 = "#cc67a7", ETH_8_60 = "#66b0c2",
+  ETH_5_100 = "#91056a", ETH_4_60 = "#007a92"), line_to_middle = TRUE,
+  lty = 1, lwd = c(2, 3, 1, 4, 2, 4), lwd_box = 1.5,
+  lwd_quarterly_ticks = 1, lwd_x_axis = 1.5, lwd_y_axis = 1.5,
+  lwd_y_ticks = 1.5, lwd_yearly_ticks = 1.5, margins = c(NA, 7, 12, 7),
+  NA_continue_line = FALSE, output_wide = FALSE, point_symbol = 1:18,
+  pointsize = 12, preferred_y_gap_sizes = c(25, 20, 15, 10, 5, 2.5, 1, 0.5),
   quarterly_ticks = TRUE, range_must_not_cross_zero = TRUE,
   show_left_y_axis = TRUE, show_points = FALSE, show_right_y_axis = TRUE,
-  show_y_grids = TRUE, subtitle_adj = 0, subtitle_adj_r = 0.9,
-  subtitle_cex = 1, subtitle_margin = 2, subtitle_outer = FALSE,
-  subtitle_transform = "toupper", sum_as_line = FALSE, sum_legend = "sum",
-  sum_line_color = c(ETH_8_100 = "#007a92"), sum_line_lty = 1,
-  sum_line_lwd = 3, tcl_quarterly_ticks = -0.4, tcl_y_ticks = -0.75,
+  show_x_axis = TRUE, show_y_grids = TRUE, subtitle_adj = 0,
+  subtitle_adj_r = 0.9, subtitle_cex = 1, subtitle_margin = 2,
+  subtitle_outer = FALSE, subtitle_transform = "toupper",
+  sum_as_line = FALSE, sum_legend = "sum", sum_line_color = c(ETH_8_100 =
+  "#007a92"), sum_line_lty = 1, sum_line_lwd = 3,
+  tcl_quarterly_ticks = -0.4, tcl_y_ticks = -0.75,
   tcl_yearly_ticks = -0.75, title_adj = 0, title_cex.main = 1,
-  title_margin = 8, title_outer = FALSE, title_transform = NA,
-  total_bar_margin_pct = 0.2, use_box = FALSE, x_tick_dt = 1,
-  xaxs = "i", y_grid_color = "#CCCCCC", y_grid_count = c(5, 6, 8, 10),
-  y_grid_count_strict = FALSE, y_las = 2, y_range_min_size = NULL,
-  y_tick_force_integers = FALSE, y_tick_margin = 0.15, yaxs = "i",
-  yearly_ticks = TRUE)
+  title_margin = 5, title_outer = FALSE, title_transform = NA,
+  total_bar_margin_pct = 0.2, use_bar_gap_in_groups = FALSE,
+  use_box = FALSE, x_tick_dt = 1, xaxs = "i", y_grid_color = "#CCCCCC",
+  y_grid_count = c(5, 6, 8, 10), y_grid_count_strict = FALSE, y_las = 2,
+  y_range_min_size = NULL, y_tick_force_integers = FALSE,
+  y_tick_margin = 0.15, yaxs = "i", yearly_ticks = TRUE)
 
 init_tsplot_print_theme(output_wide = FALSE, margins = c(NA, 10/if
   (output_wide) 1 + 1/3 else 1, 10, 7/if (output_wide) 1 + 1/3 else 1),
@@ -56,7 +60,7 @@ init_tsplot_print_theme(output_wide = FALSE, margins = c(NA, 10/if
   (output_wide) c(10 + 2/3, 6) else c(8, 6)),
   legend_intersp_y = scale_theme_param_for_print(1, if (output_wide) c(10 +
   2/3, 6) else c(8, 6)), legend_box_size = scale_theme_param_for_print(2, if
-  (output_wide) c(10 + 2/3, 6) else c(8, 6)), legend_margin_top = 6,
+  (output_wide) c(10 + 2/3, 6) else c(8, 6)), legend_margin_top = 8,
   legend_margin_bottom = 3, legend_seg.len = scale_theme_param_for_print(2,
   if (output_wide) c(10 + 2/3, 6) else c(8, 6)),
   pointsize = scale_theme_param_for_print(12, if (output_wide) c(10 + 2/3, 6)
@@ -65,15 +69,25 @@ init_tsplot_print_theme(output_wide = FALSE, margins = c(NA, 10/if
 \arguments{
 \item{auto_bottom_margin}{logical Should the bottom margin be automatically calculated? This will be overridden if margins[1] is not NA. Default FALSE}
 
+\item{band_fill_color}{character vector of hex colors for the bands if left_as_band == TRUE.}
+
 \item{bar_border}{character hex colors for the border around bars in bar charts.}
 
 \item{bar_border_lwd}{numeric The line width of the borders of bars in barplots. Default 1}
 
-\item{bar_fill_color}{character vector of hex colors for 6 time series.}
+\item{bar_fill_color}{character vector of hex colors for the bars if left_as_bar == TRUE}
+
+\item{bar_gap}{numeric The width of the gap between bars, in \% of space alloted to the bar.}
+
+\item{bar_group_gap}{numeric The width of the gap between groups of bars if group_bar_chart is TRUE.}
 
 \item{ci_alpha}{Numeric 0-255, numeric 0-1 or hey 00-FF, transparency of the confidence interval bands}
 
 \item{ci_colors}{Named colors or hex values Colors of the confidence interval bands}
+
+\item{ci_legend_label}{character A formatting template for how the ci bands should be labelled. May contain the 
+placeholders. '\%ci_value\%' will be replaced with the ci label. '\%series\%' (will be replaced with the series name)
+exactly once. Defaults to '\%ci_value\% ci for \%series\%'}
 
 \item{default_bottom_margin}{numeric The bottom margin to use when margins[1] is NA but neither auto_legend nor auto_bottom_margin are true. Default 3}
 
@@ -153,6 +167,8 @@ init_tsplot_print_theme(output_wide = FALSE, margins = c(NA, 10/if
 
 \item{show_right_y_axis}{logical: should left y axis be shown, defaults to TRUE.}
 
+\item{show_x_axis}{locigal: should x axis be shown, defaults to TRUE}
+
 \item{show_y_grids}{logical should y_grids by shown at all, defaults to TRUE.}
 
 \item{subtitle_adj}{numeric same as base \code{\link{plot}} parameter, defaults to 0.}
@@ -194,6 +210,8 @@ init_tsplot_print_theme(output_wide = FALSE, margins = c(NA, 10/if
 \item{title_transform}{function to transform the title, defaults to NA.}
 
 \item{total_bar_margin_pct}{numeric defintion as in base plot, defaults to "i", defaults to .2,}
+
+\item{use_bar_gap_in_groups}{logical Should there be gaps of size bar_gap between the bars in a group if group_bar_chart = TRUE? Default FALSE}
 
 \item{use_box}{logical use a box around the plot.}
 

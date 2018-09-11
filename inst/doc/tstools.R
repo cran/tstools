@@ -77,7 +77,8 @@ tsplot(list("KOF Barometer" = KOF$baro_point_fc),
 ## ----fig.width = 7,fig.height=6------------------------------------------
 tsplot(tsb1, tsb2, tsb3,
        left_as_bar = T,
-       auto_legend = F)
+       auto_legend = F,
+       theme = init_tsplot_theme(bar_gap = 10))
 
 ## ----fig.width = 7,fig.height=6------------------------------------------
 tsl <- list(tsb1,tsb2,tsb3)
@@ -103,6 +104,13 @@ tsplot(tsb1, tsb2, tsb3,
        left_as_bar = T,
        group_bar_chart = T,
        auto_legend = F)
+
+## ----fig.width = 7,fig.height=6------------------------------------------
+set.seed(123)
+tslist <- generate_random_ts(4, starts = 1987:1990,
+                             ranges_min = 1,
+                             ranges_max = 3)
+tsplot(tslist, left_as_band = TRUE)
 
 ## ----fig.width = 7,fig.height=6------------------------------------------
 data(KOF)
@@ -196,6 +204,11 @@ tsplot("Some like\n loooong legends\n with so many words" = ts1)
 tsplot(KOF[1],auto_legend = F)
 
 ## ----eval=FALSE----------------------------------------------------------
+#  tsplot(KOF[1],
+#         output_format = "pdf",
+#         theme = init_tsplot_print_theme(output_wide = T))
+
+## ----eval=FALSE----------------------------------------------------------
 #  data(KOF)
 #  write_ts(KOF,file.path(tempdir(),"test_export"),"csv")
 
@@ -204,4 +217,13 @@ tsplot(KOF[1],auto_legend = F)
 #           "csv",
 #           wide = T,
 #           transpose = T)
+
+## ----eval=F,echo=T-------------------------------------------------------
+#  init_tsplot_theme(legend_all_left = T,
+#                    legend_col = 1)
+
+## ----eval=F,echo=T-------------------------------------------------------
+#  init_tsplot_theme(band_fill_color = c("#FF0000","#00FF00"),
+#                    line_colors = c("#FF0000","#00FF00"),
+#                    bar_fill_color = c("#FF0000","#00FF00"))
 
