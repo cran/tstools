@@ -282,7 +282,7 @@ tsplot.list <- function(...,
   }
   
   tsl_lengths <- sapply(tsl, length)
-  if(any(tsl_lengths == 1)) {
+  if(any(tsl_lengths == 1) && !left_as_bar) {
     warning("tsl contains series of length 1! Omitting those.")
     tsl <- tsl[tsl_lengths > 1]
     if(length(tsl) == 0) {
@@ -308,10 +308,6 @@ tsplot.list <- function(...,
     if(!signs_consistent) {
       warning("Found both positive and negative contributions in tsl!\nAre you sure a band plot is what you want?")
     }
-  }
-  
-  if(any(sapply(tsl, length) == 1) || (!is.null(tsr) && any(sapply(tsr, length) == 1))) {
-    stop("Time series of length 1 are not supported!")
   }
   
   if(is.null(theme)) {
@@ -501,6 +497,10 @@ tsplot.list <- function(...,
       half_min_range_size <- 0.5*theme$y_range_min_size
       tsl_r <- c(tsl_r_mid - half_min_range_size, tsl_r_mid + half_min_range_size)
     }
+  } else if (tsl_r[1] == tsl_r[2]) {
+    level <- tsl_r[1]
+    offset <- level %% 10
+    tsl_r <- c(level - 10 - offset, level + 10 - offset)
   }
   
   if(!is.null(tsr)) {
@@ -514,6 +514,10 @@ tsplot.list <- function(...,
         half_min_range_size <- 0.5*theme$y_range_min_size
         tsr_r <- c(tsr_r_mid - half_min_range_size, tsr_r_mid + half_min_range_size)
       }
+    } else if(tsr_r[1] == tsr_r[2]) {
+      level <- tsr_r[1]
+      offset <- level %% 10
+      tsr_r <- c(level - 10 - offset, level + 10 - offset)
     }
   }
   
@@ -685,6 +689,11 @@ tsplot.list <- function(...,
   if(theme$show_y_grids){
     addYGrids(left_y$y_ticks, global_x$x_range, theme = theme)
   }
+  
+  if(!all(is.na(theme$highlight_y_values))) {
+    addYHighlights(global_x$x_range, theme)
+  }
+  
   # Split theme into left/right
   tt_r <- theme
   # Make sure we do not reuse line specs for the right axis (if left is not bars)
