@@ -1,7 +1,7 @@
 Type: Package
 Package: tstools
 Title: A Time Series Toolbox for Official Statistics
-Version: 0.4.2
+Version: 0.4.3
 Authors@R: c(
     person("Matthias", "Bannert", , "bannert@kof.ethz.ch", role = "aut"),
     person("Severin", "Thoeni", , "thoenis@kof.ethz.ch", role = "aut"),
@@ -27,11 +27,11 @@ VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
-RoxygenNote: 7.1.2
-Packaged: 2023-06-07 14:58:31 UTC; sbisinger
+RoxygenNote: 7.2.3
+Packaged: 2024-01-18 17:35:15 UTC; sb
 Author: Matthias Bannert [aut],
   Severin Thoeni [aut],
   Stéphane Bisinger [aut, cre]
 Maintainer: Stéphane Bisinger <bisinger@kof.ethz.ch>
 Repository: CRAN
-Date/Publication: 2023-06-07 16:40:02 UTC
+Date/Publication: 2024-01-18 18:10:02 UTC
